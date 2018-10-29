@@ -1,8 +1,8 @@
 version: '3.5'
 
-# For this configuration to work properly, you must have a license file mounted into the dotcms
-# service.  Without a license file, the external ES service will NOT be recognized and utilized.
-# If started without a valid license file, all documents will indexed on the dotcms node directly
+# For this configuration to work properly, you must have a license pack mounted into the dotcms
+# service.  Without a license pack, the external ES service will NOT be recognized and utilized.
+# If started without a valid license, all documents will indexed on the dotcms node directly
 # and will have to be reindexed after a valid license is applied.
 
 networks:
@@ -128,8 +128,9 @@ services:
       - http
     volumes:
       - cms-shared:/data/shared
-      #- [serverpath]/license.dat:/data/local/dotsecure/license/license.dat
-      #- [serverpath]/license.zip:/data/shared/assets/license.zip
+#     license.zip needs to be a license pack.  Make sure it is not just a single license but a zip
+#         file with as many licenses as you need for this installation.  
+#      - [serverpath]/license.zip:/data/shared/assets/license.zip
     networks:
       - db_net
       - http_net
