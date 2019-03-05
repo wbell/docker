@@ -15,7 +15,7 @@ set -e
 TOMCAT_HOME=/srv/dotserver/tomcat-${TOMCAT_VERSION}
 
 # Java heap size used for Tomcat/dotCMS app
-: ${CMS_HEAP_SIZE:="1G"}
+: ${CMS_HEAP_SIZE:="2G"}
 
 # Extra JVM args to pass to the Tomcat JVM
 : ${CMS_JAVA_OPTS:=""}
@@ -39,13 +39,13 @@ TOMCAT_HOME=/srv/dotserver/tomcat-${TOMCAT_VERSION}
 ## Database config
 
 # IP or hostname of database server
-: ${PROVIDER_DB_DNSNAME:=""}
+: ${PROVIDER_DB_DNSNAME:="localhost"}
 
 # Database type, one of ["H2","POSTGRES","MYSQL","ORACLE","MSSQL"]
 : ${PROVIDER_DB_DRIVER:="POSTGRES"}
 
 # JDBC-compliant URL to connect to DB (only needed to set custom options, PROVIDER_DB_DNSNAME & PROVIDER_DB_PORT must also be set or use defaults)
-: ${PROVIDER_DB_URL:=""}
+: ${PROVIDER_DB_URL:="jdbc:postgresql://localhost/dotcms"}
 
 # Database tcp port number. If unset, will use default per database type
 : ${PROVIDER_DB_PORT:=""} 

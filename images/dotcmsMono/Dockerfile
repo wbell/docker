@@ -15,7 +15,10 @@ ARG BUILD_ID
 WORKDIR /srv
 
 # Build env dependencies
-RUN apk update && apk --no-cache add bash grep openssl git nodejs-current nodejs-current-dev sed
+RUN apk update && apk --no-cache add bash grep openssl git nodejs-current nodejs-current-dev sed sudo 
+
+
+
 
 # dotCMS core distributed under GPLv3 license (https://github.com/dotCMS/core/blob/master/license.txt)
 COPY build-src/ /build/
@@ -49,6 +52,33 @@ RUN apk --no-cache upgrade \
     && update-ca-certificates
 
 RUN apk --no-cache add libc6-compat tomcat-native && apk add libsass --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ 
+
+# Build env dependencies
+RUN apk update && apk --no-cache add postgresql sudo
+
+# Install postgresql, create user, db & start the daemon (for testing)
+
+
+RUN mkdir -p /var/lib/postgresql/data
+RUN mkdir -p /run/postgresql/
+RUN chown -R postgres:postgres /run/postgresql/
+RUN chmod -R 0700 /var/lib/postgresql/data
+RUN chown -R postgres:postgres /var/lib/postgresql/data
+RUN su - postgres -c 'initdb /var/lib/postgresql/data'
+RUN su - postgres -c 'echo "host all  all    0.0.0.0/0  md5" >> /var/lib/postgresql/data/pg_hba.conf'
+RUN su - postgres -c 'echo "local all all peer"             >> /var/lib/postgresql/data/pg_hba.conf'
+RUN su - postgres -c "echo \"listen_addresses='*'\" >> /var/lib/postgresql/data/postgresql.conf"
+RUN su - postgres -c "pg_ctl start -D /var/lib/postgresql/data -l /var/lib/postgresql/log.log &&\
+    psql --command \"ALTER USER postgres WITH ENCRYPTED PASSWORD 'buildpgpass';\" &&\
+    psql --command \"CREATE DATABASE dotcms;\"&&\
+    psql --command \"create user dotcmsdbuser with PASSWORD 'password';\"&&\
+    psql --command \"grant ALL on database dotcms to dotcmsdbuser;\""
+ 
+
+
+
+
+
 
 # S6 overlay and components distributed under ISC license (https://github.com/just-containers/s6-overlay/blob/master/LICENSE.md)
 ENV S6_OVERLAY_VERSION v1.21.4.0
@@ -91,6 +121,8 @@ EXPOSE 8082
 EXPOSE 8000
 # Glowroot profiler - must be configured via CMS_JAVA_OPTS
 EXPOSE 4000
+#postgres
+EXPOSE 5432
 
 ENTRYPOINT ["/init"]
 CMD ["dotcms"]
